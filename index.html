@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cotizador – Hidromax</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #0F6E56;
+    --green-dark: #085041;
+    --green-light: #E1F5EE;
+    --green-mid: #1D9E75;
+    --green-soft: #f0fbf7;
+    --text: #1a1a1a;
+    --text-sec: #555;
+    --text-ter: #999;
+    --border: #e0e0e0;
+    --bg: #ffffff;
+    --bg-sec: #f7f7f6;
+    --radius: 10px;
+  }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: #f2f2f0;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 2rem 2.5rem 2.5rem;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1.25rem;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .brand { display: flex; align-items: center; gap: 12px; }
+
+  .logo-box {
+    width: 44px; height: 44px;
+    background: var(--green);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .logo-box svg { width: 24px; height: 24px; fill: var(--green-light); }
+
+  .brand-text h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.5px;
+  }
+
+  .brand-text p { font-size: 11px; color: var(--text-sec); margin-top: 1px; }
+
+  .header-date { font-size: 12px; color: var(--text-ter); }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--text-ter);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* CLIENT */
+  .client-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .client-row input {
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .client-row input:focus { outline: none; border-color: var(--green); }
+
+  /* CATEGORIES */
+  .categories {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+
+  .cat-btn {
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px; font-weight: 500;
+    padding: 5px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-sec);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .cat-btn:hover { background: var(--bg-sec); }
+  .cat-btn.active { background: var(--green); color: var(--green-light); border-color: var(--green); }
+
+  /* SERVICES GRID */
+  .services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .client-row { grid-template-columns: 1fr; }
+    .totals { grid-template-columns: 1fr !important; }
+    .page { padding: 1.25rem 1rem 2rem; }
+  }
+
+  .service-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .service-card:hover { border-color: var(--green-mid); }
+  .service-card.selected { border: 1.5px solid var(--green); background: var(--green-soft); }
+
+  .service-card h3 { font-size: 13px; font-weight: 500; margin-bottom: 3px; line-height: 1.3; color: var(--text); }
+  .service-card .sub { font-size: 11px; color: var(--text-sec); line-height: 1.4; }
+  .service-card .price-tag {
+    margin-top: 6px; font-size: 12px; font-weight: 500;
+    color: var(--text-sec);
+  }
+  .service-card.selected .price-tag { color: var(--green); }
+
+  .check {
+    position: absolute; top: 10px; right: 10px;
+    width: 18px; height: 18px;
+    border-radius: 50%; background: var(--green);
+    display: none; align-items: center; justify-content: center;
+  }
+  .service-card.selected .check { display: flex; }
+  .check::after {
+    content: '';
+    width: 6px; height: 4px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg) translateY(-1px);
+  }
+
+  .tag-consultar {
+    font-size: 10px; font-weight: 500;
+    background: var(--green-light); color: var(--green);
+    border-radius: 4px; padding: 1px 5px; margin-left: 5px;
+  }
+
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* QUOTE TABLE */
+  .quote-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin-bottom: 1.25rem;
+  }
+
+  .quote-table thead th {
+    font-size: 11px; font-weight: 600; color: var(--text-sec);
+    text-align: left; padding: 0 8px 7px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .quote-table thead th:nth-child(n+3) { text-align: right; }
+
+  .quote-table td {
+    padding: 9px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .quote-table td:nth-child(n+3) { text-align: right; }
+
+  .qty-input, .price-input, .unit-select {
+    font-family: 'Barlow', sans-serif; font-size: 12px;
+    padding: 4px 7px;
+    border: 1px solid var(--border); border-radius: 5px;
+    background: var(--bg); color: var(--text);
+    transition: border-color 0.15s;
+  }
+  .qty-input:focus, .price-input:focus, .unit-select:focus { outline: none; border-color: var(--green); }
+  .qty-input { width: 58px; }
+  .price-input { width: 110px; text-align: right; }
+  .unit-select { width: 80px; }
+
+  .remove-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--text-ter); font-size: 18px; line-height: 1;
+    padding: 2px 5px; border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .remove-btn:hover { color: #c0392b; background: #fdf0f0; }
+
+  /* TOTALS */
+  .totals {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px; margin-bottom: 1.5rem;
+  }
+
+  .total-card {
+    background: var(--bg-sec); border-radius: 8px; padding: 12px 14px;
+  }
+
+  .total-card .lbl { font-size: 11px; color: var(--text-sec); margin-bottom: 4px; }
+  .total-card .val { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 700; color: var(--text); }
+  .total-card.accent { background: var(--green); }
+  .total-card.accent .lbl { color: #9FE1CB; }
+  .total-card.accent .val { color: var(--green-light); }
+
+  /* NOTES */
+  .notes-area {
+    width: 100%; font-family: 'Barlow', sans-serif; font-size: 13px;
+    padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+    resize: vertical; min-height: 64px; margin-bottom: 1.25rem;
+    transition: border-color 0.15s;
+  }
+  .notes-area:focus { outline: none; border-color: var(--green); }
+
+  /* ACTIONS */
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 500;
+    padding: 9px 20px; border-radius: 7px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg-sec); }
+
+  .btn.primary { background: var(--green); color: var(--green-light); border-color: var(--green); }
+  .btn.primary:hover { background: var(--green-dark); }
+
+  .btn.whatsapp { background: #25D366; color: #fff; border-color: #25D366; }
+  .btn.whatsapp:hover { background: #1DA851; }
+
+  /* EMPTY */
+  .empty-state {
+    text-align: center; padding: 2rem 1rem;
+    color: var(--text-ter); font-size: 13px;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+    margin-bottom: 1.25rem;
+  }
+
+  /* FOOTER */
+  .page-footer {
+    margin-top: 2rem; padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--text-ter);
+    text-align: center; line-height: 1.7;
+  }
+
+  .page-footer a { color: var(--green); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="logo-box">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8 2 5 5.5 5 9c0 2.5 1.2 4.7 3 6.1V20h2v2h4v-2h2v-4.9c1.8-1.4 3-3.6 3-6.1 0-3.5-3-7-7-7zm0 2c2.5 0 5 2.8 5 5 0 2-1 3.7-2.5 4.8l-.5.4V20h-4v-5.8l-.5-.4C8 12.7 7 11 7 9c0-2.2 2.5-5 5-5z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>HIDROMAX</h1>
+        <p>Cotizador interno · Equipo de ventas</p>
+      </div>
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+
+  <div class="section-label">Datos del cliente</div>
+  <div class="client-row">
+    <input type="text" id="clientName" placeholder="Nombre del cliente" />
+    <input type="text" id="clientPhone" placeholder="Teléfono / WhatsApp" />
+    <input type="text" id="clientCity" placeholder="Ciudad / Proyecto" />
+  </div>
+
+  <div class="section-label">Categoría de servicio</div>
+  <div class="categories" id="categories"></div>
+
+  <div class="section-label">Servicios disponibles</div>
+  <div class="services-grid" id="servicesGrid"></div>
+
+  <hr />
+
+  <div class="section-label">Resumen de cotización</div>
+  <div id="quoteArea"></div>
+
+  <div class="totals" id="totals" style="display:none">
+    <div class="total-card">
+      <div class="lbl">Subtotal</div>
+      <div class="val" id="valSubtotal">$0</div>
+    </div>
+    <div class="total-card">
+      <div class="lbl">IVA (19%)</div>
+      <div class="val" id="valIva">$0</div>
+    </div>
+    <div class="total-card accent">
+      <div class="lbl">Total estimado</div>
+      <div class="val" id="valTotal">$0</div>
+    </div>
+  </div>
+
+  <div class="section-label">Notas adicionales</div>
+  <textarea class="notes-area" id="notes" placeholder="Condiciones, alcance, exclusiones, vigencia de la oferta..."></textarea>
+
+  <div class="actions">
+    <button class="btn primary" onclick="generatePDF()">Generar PDF</button>
+    <button class="btn whatsapp" onclick="sendWhatsApp()">Enviar por WhatsApp</button>
+    <button class="btn" onclick="clearAll()">Limpiar todo</button>
+  </div>
+
+  <div class="page-footer">
+    Hidromax Colombia SAS · Calle 38a norte #3n-50, Cali, Valle del Cauca<br/>
+    <a href="tel:6024002923">602 400 2923</a> · <a href="https://wa.me/573216471697">+57 321 647 1697</a> · <a href="mailto:info@hidromax.com.co">info@hidromax.com.co</a>
+  </div>
+
+</div>
+
+<script>
+const SERVICES = {
+  "Piscinas y Jacuzzis": [
+    { id:"ps1", name:"Diseño y construcción de piscinas", sub:"Obra civil, acabados, hidráulica", unit:"m²", price:1800000, consultar:false },
+    { id:"ps2", name:"Impermeabilización de piscinas / jacuzzis", sub:"Tanques, cubiertas, superficies húmedas", unit:"m²", price:280000, consultar:false },
+    { id:"ps3", name:"Spa marca Jacuzzi / Firplak", sub:"Instalación de equipos de fábrica", unit:"und", price:12000000, consultar:true },
+    { id:"ps4", name:"Jacuzzi en fibra de vidrio personalizado", sub:"Fabricación y montaje a medida", unit:"und", price:8500000, consultar:true },
+  ],
+  "Equipos Hidráulicos": [
+    { id:"eq1", name:"Equipos para piscinas residenciales", sub:"Bombas, filtros, automatización, desinfección", unit:"proyecto", price:4500000, consultar:false },
+    { id:"eq2", name:"Equipos para piscinas comerciales", sub:"Alta capacidad, alto tráfico", unit:"proyecto", price:9000000, consultar:true },
+    { id:"eq3", name:"Sistema de bombeo y presión de agua", sub:"Tanques hidroneumáticos, bombas, automatización", unit:"proyecto", price:3200000, consultar:false },
+    { id:"eq4", name:"Sistema de filtración de agua", sub:"Residencial / industrial / potabilización", unit:"proyecto", price:5500000, consultar:false },
+  ],
+  "Climatización": [
+    { id:"cl1", name:"Bomba de calor inverter Fairland", sub:"Climatización eficiente para piscinas", unit:"und", price:7800000, consultar:false },
+    { id:"cl2", name:"Calentador a gas (Pentair / Hayward)", sub:"Gas natural o propano", unit:"und", price:4200000, consultar:false },
+    { id:"cl3", name:"Colectores solares y mantas térmicas", sub:"Solución ecológica de climatización", unit:"m²", price:350000, consultar:false },
+    { id:"cl4", name:"Diseño de sistema de climatización completo", sub:"Automático e integrado", unit:"proyecto", price:0, consultar:true },
+  ],
+  "Wellness & Spa": [
+    { id:"ws1", name:"Diseño y construcción de spa / zona húmeda", sub:"Turcos, saunas, espacios zen", unit:"m²", price:2200000, consultar:false },
+    { id:"ws2", name:"Espejo de agua / lago koi decorativo", sub:"Diseño y construcción", unit:"proyecto", price:0, consultar:true },
+    { id:"ws3", name:"Equipamiento de spa completo", sub:"Duchas sensoriales, cromoterapia, hidromasaje", unit:"proyecto", price:6500000, consultar:false },
+  ],
+  "Eléctrica y Eficiencia": [
+    { id:"el1", name:"Auditoría de consumo eléctrico", sub:"Análisis y diagnóstico energético", unit:"proyecto", price:1200000, consultar:false },
+    { id:"el2", name:"Tablero de control y protección eléctrica", sub:"Diseño e instalación", unit:"und", price:1800000, consultar:false },
+    { id:"el3", name:"Reguladores y vigilantes de tensión", sub:"Protección de equipos hidráulicos", unit:"und", price:680000, consultar:false },
+    { id:"el4", name:"Sistema autosostenible (energía)", sub:"Diseño de instalaciones eficientes", unit:"proyecto", price:0, consultar:true },
+  ],
+};
+
+const categories = Object.keys(SERVICES);
+let activeCategory = categories[0];
+let selected = {};
+
+document.getElementById("headerDate").textContent = new Date().toLocaleDateString("es-CO", { year:"numeric", month:"long", day:"numeric" });
+
+function fmt(n) {
+  return "$" + Math.round(n).toLocaleString("es-CO");
+}
+
+function renderCategories() {
+  document.getElementById("categories").innerHTML = categories.map(c =>
+    `<button class="cat-btn ${c===activeCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`
+  ).join("");
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderCategories();
+  renderServices();
+}
+
+function renderServices() {
+  const grid = document.getElementById("servicesGrid");
+  grid.innerHTML = SERVICES[activeCategory].map(s => {
+    const isSel = !!selected[s.id];
+    return `<div class="service-card ${isSel?'selected':''}" onclick="toggleService('${s.id}')">
+      <div class="check"></div>
+      <h3>${s.name}${s.consultar?'<span class="tag-consultar">a consultar</span>':''}</h3>
+      <div class="sub">${s.sub}</div>
+      <div class="price-tag">${s.price>0?fmt(s.price)+' / '+s.unit:'Precio a consultar'}</div>
+    </div>`;
+  }).join("");
+}
+
+function toggleService(id) {
+  const s = findService(id);
+  if (!s) return;
+  if (selected[id]) { delete selected[id]; }
+  else { selected[id] = { ...s, qty:1, unitPrice:s.price }; }
+  renderServices();
+  renderQuote();
+}
+
+function findService(id) {
+  for (const cat of categories) {
+    const f = SERVICES[cat].find(s => s.id===id);
+    if (f) return f;
+  }
+  return null;
+}
+
+function renderQuote() {
+  const area = document.getElementById("quoteArea");
+  const totalsEl = document.getElementById("totals");
+  const keys = Object.keys(selected);
+
+  if (keys.length===0) {
+    area.innerHTML = `<div class="empty-state">Selecciona servicios arriba para agregarlos a la cotización</div>`;
+    totalsEl.style.display = "none";
+    return;
+  }
+
+  const rows = keys.map(id => {
+    const it = selected[id];
+    const st = it.qty * it.unitPrice;
+    return `<tr>
+      <td style="max-width:200px; font-weight:500">${it.name}${it.consultar&&it.unitPrice===0?'<br><span style="font-size:10px;color:#0F6E56;font-weight:400">Precio a confirmar con asesor</span>':''}</td>
+      <td><select class="unit-select" onchange="updateUnit('${id}',this.value)">
+        ${["m²","m³","und","proyecto"].map(u=>`<option ${u===it.unit?'selected':''}>${u}</option>`).join("")}
+      </select></td>
+      <td><input class="qty-input" type="number" min="1" value="${it.qty}" onchange="updateQty('${id}',this.value)" /></td>
+      <td><input class="price-input" type="number" min="0" value="${it.unitPrice}" onchange="updatePrice('${id}',this.value)" /></td>
+      <td style="font-weight:500">${it.unitPrice===0?'<span style="color:#0F6E56;font-size:12px">A consultar</span>':fmt(st)}</td>
+      <td><button class="remove-btn" onclick="removeItem('${id}')" title="Quitar">×</button></td>
+    </tr>`;
+  }).join("");
+
+  area.innerHTML = `<table class="quote-table">
+    <thead><tr>
+      <th>Servicio</th><th>Unidad</th><th style="text-align:right">Cant.</th>
+      <th style="text-align:right">Precio unit. (COP)</th>
+      <th style="text-align:right">Subtotal</th><th></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+
+  recalcTotals();
+  totalsEl.style.display = "grid";
+}
+
+function updateQty(id,val){ if(selected[id]){ selected[id].qty=parseFloat(val)||1; recalcTotals(); } }
+function updatePrice(id,val){ if(selected[id]){ selected[id].unitPrice=parseFloat(val)||0; selected[id].consultar=false; recalcTotals(); } }
+function updateUnit(id,val){ if(selected[id]) selected[id].unit=val; }
+function removeItem(id){ delete selected[id]; renderServices(); renderQuote(); }
+
+function recalcTotals() {
+  let sub = 0;
+  for (const id of Object.keys(selected)) sub += selected[id].qty * selected[id].unitPrice;
+  const iva = sub * 0.19;
+  document.getElementById("valSubtotal").textContent = fmt(sub);
+  document.getElementById("valIva").textContent = fmt(iva);
+  document.getElementById("valTotal").textContent = fmt(sub + iva);
+}
+
+function clientData() {
+  return {
+    name: document.getElementById("clientName").value || "Sin nombre",
+    phone: document.getElementById("clientPhone").value || "",
+    city: document.getElementById("clientCity").value || "",
+    notes: document.getElementById("notes").value || "",
+  };
+}
+
+function generatePDF() {
+  const c = clientData();
+  const keys = Object.keys(selected);
+  if (keys.length===0) { alert("Agrega al menos un servicio para generar la cotización."); return; }
+  const date = new Date().toLocaleDateString("es-CO", {year:"numeric",month:"long",day:"numeric"});
+  let sub = 0;
+  const rows = keys.map(id => {
+    const it = selected[id]; const st = it.qty * it.unitPrice; sub += st;
+    return `<tr>
+      <td style="padding:8px 6px;border-bottom:1px solid #e8e8e8">${it.name}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #e8e8e8;text-align:center">${it.qty} ${it.unit}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #e8e8e8;text-align:right">${it.unitPrice>0?fmt(it.unitPrice):'A consultar'}</td>
+      <td style="padding:8px 6px;border-bottom:1px solid #e8e8e8;text-align:right;font-weight:600">${it.unitPrice>0?fmt(st):'A consultar'}</td>
+    </tr>`;
+  }).join("");
+  const iva = sub*0.19; const total = sub+iva;
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cotización Hidromax – ${c.name}</title>
+  <style>body{font-family:Arial,sans-serif;font-size:13px;color:#222;padding:32px;max-width:800px;margin:0 auto}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:2px solid #0F6E56;margin-bottom:20px}
+  .brand{font-size:24px;font-weight:700;color:#0F6E56;letter-spacing:1px}.sub{font-size:11px;color:#666;margin-top:3px}
+  table{width:100%;border-collapse:collapse;margin:16px 0}
+  thead{background:#0F6E56;color:#E1F5EE}thead th{padding:10px 6px;text-align:left;font-size:12px}
+  .tot td{padding:6px}.grand{background:#0F6E56;color:#E1F5EE;font-weight:700;font-size:15px}
+  .notes{background:#f5f5f5;border-left:3px solid #0F6E56;padding:10px 14px;margin-top:16px;font-size:12px}
+  .foot{margin-top:32px;font-size:11px;color:#999;text-align:center;border-top:1px solid #e0e0e0;padding-top:12px}
+  @media print{body{padding:0}}</style></head><body>
+  <div class="hdr">
+    <div><div class="brand">HIDROMAX</div>
+    <div class="sub">Soluciones de ingeniería para proyectos hidráulicos</div>
+    <div class="sub" style="margin-top:5px">Calle 38a norte #3n-50, Cali, Valle del Cauca</div>
+    <div class="sub">Tel: 602 400 2923 · +57 321 647 1697 · info@hidromax.com.co</div></div>
+    <div style="text-align:right;font-size:12px;color:#555">
+      <div><b>Fecha:</b> ${date}</div>
+      <div style="margin-top:10px"><b>Cliente:</b> ${c.name}</div>
+      ${c.phone?`<div><b>Teléfono:</b> ${c.phone}</div>`:''}
+      ${c.city?`<div><b>Proyecto:</b> ${c.city}</div>`:''}
+    </div>
+  </div>
+  <table><thead><tr>
+    <th>Servicio</th><th style="text-align:center">Cantidad</th>
+    <th style="text-align:right">Precio unit.</th><th style="text-align:right">Subtotal</th>
+  </tr></thead><tbody>${rows}</tbody></table>
+  <table class="tot" style="width:300px;margin-left:auto">
+    <tr><td>Subtotal</td><td style="text-align:right">${fmt(sub)}</td></tr>
+    <tr><td>IVA (19%)</td><td style="text-align:right">${fmt(iva)}</td></tr>
+    <tr class="grand"><td style="padding:9px 6px">Total estimado (COP)</td><td style="padding:9px 6px;text-align:right">${fmt(total)}</td></tr>
+  </table>
+  ${c.notes?`<div class="notes"><b>Notas:</b> ${c.notes}</div>`:''}
+  <div class="foot">Esta cotización es un estimado con vigencia de 30 días. Los precios pueden variar según condiciones del proyecto.<br/>Hidromax Colombia SAS · <a href="https://hidromaxgroup.com">hidromaxgroup.com</a></div>
+  </body></html>`;
+  const blob = new Blob([html],{type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Cotizacion_Hidromax_${c.name.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function sendWhatsApp() {
+  const c = clientData();
+  const keys = Object.keys(selected);
+  if (keys.length===0) { alert("Agrega al menos un servicio antes de enviar."); return; }
+  let sub = 0;
+  const lines = keys.map(id => {
+    const it = selected[id]; const st = it.qty*it.unitPrice; sub+=st;
+    return `• ${it.name} (${it.qty} ${it.unit}): ${it.unitPrice>0?fmt(st):'A consultar'}`;
+  }).join("\n");
+  const iva = sub*0.19; const total = sub+iva;
+  const msg = `*Cotización Hidromax*\n\n*Cliente:* ${c.name}\n${c.city?`*Proyecto:* ${c.city}\n`:''}\n*Servicios:*\n${lines}\n\n*Subtotal:* ${fmt(sub)}\n*IVA (19%):* ${fmt(iva)}\n*Total estimado:* ${fmt(total)}\n${c.notes?`\n*Notas:* ${c.notes}\n`:''}\nVigencia: 30 días · info@hidromax.com.co · +57 321 647 1697`;
+  const phone = document.getElementById("clientPhone").value.replace(/\D/g,"") || "573216471697";
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+
+function clearAll() {
+  selected = {};
+  ["clientName","clientPhone","clientCity","notes"].forEach(id => document.getElementById(id).value="");
+  renderServices(); renderQuote();
+}
+
+renderCategories(); renderServices(); renderQuote();
+</script>
+</body>
+</html>
